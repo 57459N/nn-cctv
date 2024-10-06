@@ -68,6 +68,12 @@ class MainWindow(QMainWindow):
             pixmap = QPixmap.fromImage(q_img)
             self.label.setPixmap(pixmap)
 
+    def keyPressEvent(self, event):
+        """Handle key press events."""
+        if event.key() == Qt.Key_Z and event.modifiers() == Qt.ControlModifier:
+            if self.rectangles:
+                self.rectangles.pop()  # Remove the last rectangle
+
     def mousePressEvent(self, event):
         """Capture the starting point of the rectangle."""
         if event.button() == Qt.MouseButton.LeftButton and self.label.underMouse():
