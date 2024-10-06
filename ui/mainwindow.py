@@ -70,7 +70,7 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         """Handle key press events."""
-        if event.key() == Qt.Key_Z and event.modifiers() == Qt.ControlModifier:
+        if event.key() == Qt.Key.Key_Z and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
             if self.rectangles:
                 self.rectangles.pop()  # Remove the last rectangle
 

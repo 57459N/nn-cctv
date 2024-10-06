@@ -39,3 +39,7 @@ typing_extensions==4.8.0
 tzdata==2023.3
 urllib3==2.1.0
 zipp==3.17.0
+
+PySide6~=6.7.2
+torch~=1.9.1+cpu
+torchvision~=0.10.1+cpu
