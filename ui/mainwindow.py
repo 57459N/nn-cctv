@@ -50,8 +50,9 @@ class MainWindow(QMainWindow):
 
     def update_frame(self):
         """Update the displayed frame."""
-        self.frame = self.recognizer.tracking_image.copy()
+        self.frame = self.recognizer.tracking_image
         if self.frame is not None:
+            self.frame = self.frame.copy()
             height, width, channel = self.frame.shape
             bytes_per_line = 3 * width
             q_img = QImage(self.frame.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
@@ -59,7 +60,7 @@ class MainWindow(QMainWindow):
             # Draw rectangles on the frame copy
             painter = QPainter(q_img)
             painter.setPen(QPen(QColor(255, 0, 0, 128), 5))  # Red with alpha
-            painter.setBrush(QColor(0, 0, 0, 0))  # Transparent fill
+            painter.setBrush(QColor(255, 0, 0, 90))  # Transparent fill
             for rect in self.rectangles:
                 painter.drawRect(rect)
             painter.end()
