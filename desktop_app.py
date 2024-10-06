@@ -1,17 +1,16 @@
 import sys
 import threading
 import time
-from pathlib import Path
 
 import cv2
 from PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QPixmap, QImage
 
-from face_rec.face_detection.scrfd.detector import SCRFD
-from face_rec.face_recognition.arcface.utils import read_features
-from face_rec.face_tracking.tracker.byte_tracker import BYTETracker
-from face_rec.recognize import tracking, load_config, recognize, process_tracking
+from face_detection.scrfd.detector import SCRFD
+from face_recognition.arcface.utils import read_features
+from face_tracking.tracker.byte_tracker import BYTETracker
+from recognize import load_config, recognize, process_tracking
 
 detector = SCRFD(model_file="face_detection/scrfd/weights/scrfd_2.5g_bnkps.onnx")
 

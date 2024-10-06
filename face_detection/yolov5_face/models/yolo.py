@@ -8,7 +8,7 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 
-sys.path.append("./")  # to run '$ python *.py' files in subdirectories
+sys.path.append("/")  # to run '$ python *.py' files in subdirectories
 logger = logging.getLogger(__name__)
 
 from models.common import (

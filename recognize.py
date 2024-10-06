@@ -17,7 +17,7 @@ from face_tracking.tracker.visualize import plot_tracking
 
 # Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-devide = 'cpu'
+device = torch.device('cpu')
 
 # Face detector (choose one)
 detector = SCRFD(model_file="face_detection/scrfd/weights/scrfd_2.5g_bnkps.onnx")
@@ -29,7 +29,7 @@ recognizer = iresnet_inference(
 )
 
 # Load precomputed face features and names
-images_names, images_embs = read_features(feature_path="./datasets/face_features/feature")
+images_names, images_embs = read_features(feature_path="datasets/face_features/feature")
 
 # Mapping of face IDs to names
 id_face_mapping = {}
@@ -289,7 +289,7 @@ def recognize():
 
 def main():
     """Main function to start face tracking and recognition threads."""
-    file_name = "./face_tracking/config/config_tracking.yaml"
+    file_name = "face_tracking/config/config_tracking.yaml"
     config_tracking = load_config(file_name)
 
     # Start tracking thread
