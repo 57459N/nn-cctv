@@ -1,6 +1,9 @@
 import sys
+
+from PySide6 import QtGui
 from PySide6.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QApplication
-from PySide6.QtCore import QTimer, Qt, QRect
+from PySide6.QtCore import QTimer, Qt, QRect, QPoint
+
 from recognizer import Recognizer  # Ensure this imports correctly
 import cv2
 from PySide6.QtGui import QImage, QPixmap, QPainter, QColor, QPen
@@ -19,7 +22,7 @@ class MainWindow(QMainWindow):
 
         # QLabel for displaying frames
         self.label = QLabel(self)
-        self.label.setFixedSize(640, 480)  # Set size for the label
+        self.label.setFixedSize(800, 600)  # Set size for the label
         self.label.setMouseTracking(True)  # Enable mouse tracking
 
         # Layout
@@ -54,6 +57,7 @@ class MainWindow(QMainWindow):
         if self.frame is not None:
             self.frame = self.frame.copy()
             height, width, channel = self.frame.shape
+            self.label.setFixedSize(width, height)
             bytes_per_line = 3 * width
             q_img = QImage(self.frame.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
 
@@ -63,6 +67,13 @@ class MainWindow(QMainWindow):
             painter.setBrush(QColor(255, 0, 0, 90))  # Transparent fill
             for rect in self.rectangles:
                 painter.drawRect(rect)
+
+            # Show non-yet-created rectangle while holding mouse key
+            if self.start_point is not None and self.end_point is not None:
+                painter.drawRect(QRect(self.start_point[0], self.start_point[1],
+                                       self.end_point[0] - self.start_point[0],
+                                       self.end_point[1] - self.start_point[1]))
+
             painter.end()
 
             pixmap = QPixmap.fromImage(q_img)
