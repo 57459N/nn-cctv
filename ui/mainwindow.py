@@ -65,9 +65,35 @@ class MainWindow(QMainWindow):
 
             self.paint_rectangles(q_img)
 
+            self.paint_recognitions(q_img)
+
             pixmap = QPixmap.fromImage(q_img)
             self.label.setFixedSize(width, height)
             self.label.setPixmap(pixmap)
+
+    def paint_recognitions(self, q_img):
+        # Draw rectangles on the frame copy
+        painter = QPainter(q_img)
+
+        def green():
+            painter.setPen(QPen(QColor(0, 255, 0), 5))
+            painter.setBrush(QColor(0, 255, 0, 0))
+
+        def blue():
+            painter.setPen(QPen(QColor(0, 0, 255), 5))
+            painter.setBrush(QColor(0, 0, 255, 90))
+
+        for p in self.recognizer.get_recognized():
+            green()
+            person_rect = QRect(*p.tlwh)
+            mid_point = QPoint(p.tlwh[0] + p.tlwh[2] // 2, p.tlwh[1] + p.tlwh[3] // 2)
+            for rect in self.rectangles:
+                if rect.contains(mid_point):
+                    blue()
+                    break
+            painter.drawRect(person_rect)
+
+        painter.end()
 
     def paint_rectangles(self, q_img):
         # Draw rectangles on the frame copy

@@ -1,3 +1,4 @@
+import dataclasses
 import threading
 import time
 
@@ -14,6 +15,16 @@ from face_recognition.arcface.model import iresnet_inference
 from face_recognition.arcface.utils import compare_encodings, read_features
 from face_tracking.tracker.byte_tracker import BYTETracker
 from face_tracking.tracker.visualize import plot_tracking
+
+
+@dataclasses.dataclass
+class Person:
+    name: str
+    tlwh: np.ndarray
+    score: float
+
+    def __str__(self):
+        return f"{self.name} {self.score} {self.tlwh}"
 
 
 class Recognizer:
@@ -53,6 +64,11 @@ class Recognizer:
         self.is_running = False
         self.tracking_thread = None
         self.recognition_thread = None
+
+        self.recognized_persons: list[Person] = []
+
+    def get_recognized(self):
+        return self.recognized_persons
 
     def is_hud_visible(self):
         return self.hud_visible
@@ -106,6 +122,17 @@ class Recognizer:
                     tracking_tlwhs.append(tlwh)
                     tracking_ids.append(tid)
                     tracking_scores.append(t.score)
+
+            recs = []
+            for i, tlwh in enumerate(tracking_tlwhs):
+                obj_id = int(tracking_ids[i])
+                name = None
+                score = None
+                if obj_id in self.id_face_mapping:
+                    name, score = self.id_face_mapping[obj_id].split(":")
+                recs.append(Person(name, np.array(tlwh), score))
+
+            self.recognized_persons = recs
 
             if self.hud_visible:
                 tracking_image = plot_tracking(
@@ -166,6 +193,7 @@ class Recognizer:
             detection_bboxes = self.data_mapping["detection_bboxes"]
             tracking_ids = self.data_mapping["tracking_ids"]
             tracking_bboxes = self.data_mapping["tracking_bboxes"]
+
 
             for i in range(len(tracking_bboxes)):
                 for j in range(len(detection_bboxes)):
@@ -258,8 +286,8 @@ class Recognizer:
 
         while self.is_running:
             # todo uncomment
-            # _, img = self.cap.read()
-            img = np.ones((900, 1600, 3), dtype=np.uint8) * 255
+            _, img = self.cap.read()
+            # img = np.ones((900, 1600, 3), dtype=np.uint8) * 255
 
             self.tracking_image = self.process_tracking(img, frame_id, fps)
 
