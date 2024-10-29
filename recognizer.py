@@ -54,6 +54,9 @@ class Recognizer:
         self.tracking_thread = None
         self.recognition_thread = None
 
+    def is_hud_visible(self):
+        return self.hud_visible
+
     def get_iamge(self):
         return self.tracking_image
 
@@ -254,7 +257,9 @@ class Recognizer:
         frame_id = 0
 
         while self.is_running:
-            _, img = self.cap.read()
+            # todo uncomment
+            # _, img = self.cap.read()
+            img = np.ones((900, 1600, 3), dtype=np.uint8) * 255
 
             self.tracking_image = self.process_tracking(img, frame_id, fps)
 
