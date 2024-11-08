@@ -26,9 +26,17 @@ class Person:
     def __str__(self):
         return f"{self.name} {self.score} {self.tlwh}"
 
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if not isinstance(other, Person):
+            return False
+        return self.name == other.name
+
 
 class Recognizer:
-    def __init__(self, droidcam_url: str = "https://192.168.0.106:4343/video",
+    def __init__(self, droidcam_url: str = None,
                  tracking_config_file: str = "face_tracking/config/config_tracking.yaml",
                  hud_visible=True):
 
@@ -40,7 +48,7 @@ class Recognizer:
 
         self.device = torch.device('cpu')
 
-        self.detector = SCRFD(model_file="face_detection/scrfd/weights/scrfd_2.5g_bnkps.onnx")
+        self.detector = SCRFD(model_file="face_detection/scrfd/weights/scrfd_10g_bnkps.onnx")
         # self.detector = Yolov5Face(model_file="face_detection/yolov5_face/weights/yolov5n-face.pt")
 
         self.recognizer = iresnet_inference(
@@ -58,8 +66,11 @@ class Recognizer:
             "detection_landmarks": [],
             "tracking_bboxes": [],
         }
+        if self.droidcam_url:
+            self.cap = cv2.VideoCapture(self.droidcam_url)
+        else:
+            self.cap = None
 
-        self.cap = cv2.VideoCapture(self.droidcam_url)
         self.tracking_image = None
         self.is_running = False
         self.tracking_thread = None
@@ -74,6 +85,8 @@ class Recognizer:
         return self.hud_visible
 
     def get_iamge(self):
+        if self.tracking_image is None:
+            return np.ones((900, 1600, 3), np.uint8) * 255
         return self.tracking_image
 
     def set_hud_visible(self, visible):
@@ -194,7 +207,6 @@ class Recognizer:
             tracking_ids = self.data_mapping["tracking_ids"]
             tracking_bboxes = self.data_mapping["tracking_bboxes"]
 
-
             for i in range(len(tracking_bboxes)):
                 for j in range(len(detection_bboxes)):
                     mapping_score = self.mapping_bbox(box1=tracking_bboxes[i], box2=detection_bboxes[j])
@@ -286,8 +298,10 @@ class Recognizer:
 
         while self.is_running:
             # todo uncomment
-            _, img = self.cap.read()
-            # img = np.ones((900, 1600, 3), dtype=np.uint8) * 255
+            if self.droidcam_url is not None:
+                _, img = self.cap.read()
+            else:
+                img = np.ones((900, 1600, 3), dtype=np.uint8) * 255
 
             self.tracking_image = self.process_tracking(img, frame_id, fps)
 

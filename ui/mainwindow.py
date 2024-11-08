@@ -10,32 +10,19 @@ from recognizer import Recognizer  # Ensure this imports correctly
 import cv2
 
 from ui.myRect import MyRect
+from ui.view.mainwindow import Ui_Dialog
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
         self.setWindowTitle("Face Recognition App")
-        self.recognizer = Recognizer()
+        self.recognizer = Recognizer(droidcam_url="https://192.168.0.106:4343/video")
 
-        # Toggle button for HUD visibility
-        self.hud_button = QPushButton("Toggle HUD", self)
-        self.hud_button.clicked.connect(self.toggle_hud)
-
-        # QLabel for displaying frames
-        self.label = QLabel(self)
-        self.label.setFixedSize(800, 600)  # Set size for the label
-        self.label.setMouseTracking(True)  # Enable mouse tracking
-
-        # Layout
-        layout = QVBoxLayout()
-        layout.addWidget(self.hud_button)
-        layout.addWidget(self.label)
-
-        self.container = QWidget()
-        self.container.setLayout(layout)
-        self.setCentralWidget(self.container)
+        self.image_label = self.ui.ImageLabel
 
         # Timer to update frame
         self.timer = QTimer(self)
@@ -52,24 +39,46 @@ class MainWindow(QMainWindow):
         self.frame = None
         self.recognizer.start()
 
+        self.marked_persons = {}
+
     def toggle_hud(self):
         """Toggle HUD visibility."""
         self.recognizer.set_hud_visible(not self.recognizer.is_hud_visible())
 
     def update_frame(self):
         """Update the displayed frame."""
-        self.frame = self.recognizer.tracking_image.copy()
+        self.frame = self.recognizer.get_iamge().copy()
         if self.frame is not None:
             height, width, channel = self.frame.shape
             q_img = QImage(self.frame.data, width, height, 3 * width, QImage.Format.Format_BGR888)
 
+            self.process_recognitions()
             self.paint_rectangles(q_img)
-
             self.paint_recognitions(q_img)
 
             pixmap = QPixmap.fromImage(q_img)
-            self.label.setFixedSize(width, height)
-            self.label.setPixmap(pixmap)
+            self.image_label.setFixedSize(width, height)
+            self.image_label.setPixmap(pixmap)
+
+    def process_recognitions(self):
+        for p in self.recognizer.get_recognized():
+            if p.score is None:
+                continue
+
+            mid_point = QPoint(p.tlwh[0] + p.tlwh[2] // 2, p.tlwh[1] + p.tlwh[3] // 2)
+
+            if p.name in self.marked_persons:
+                self.marked_persons[p.name] = p
+                continue
+
+            for rect in self.rectangles:
+                if rect.contains(mid_point):
+                    self.marked_persons[p.name] = p
+                    break
+
+        text = 'Marked:\n\t'
+        text += '\n\t'.join(self.marked_persons.keys())
+        self.ui.TextLabel.setText(text)
 
     def paint_recognitions(self, q_img):
         # Draw rectangles on the frame copy
@@ -81,16 +90,25 @@ class MainWindow(QMainWindow):
 
         def blue():
             painter.setPen(QPen(QColor(0, 0, 255), 5))
-            painter.setBrush(QColor(0, 0, 255, 90))
+            painter.setBrush(QColor(0, 0, 255, 0))
+
+        def purple():
+            painter.setPen(QPen(QColor(255, 0, 255), 5))
+            painter.setBrush(QColor(255, 0, 255, 0))
 
         for p in self.recognizer.get_recognized():
             green()
+
+            if p.name in self.marked_persons:
+                purple()
+            else:
+                mid_point = QPoint(p.tlwh[0] + p.tlwh[2] // 2, p.tlwh[1] + p.tlwh[3] // 2)
+                for rect in self.rectangles:
+                    if rect.contains(mid_point):
+                        blue()
+                        break
+
             person_rect = QRect(*p.tlwh)
-            mid_point = QPoint(p.tlwh[0] + p.tlwh[2] // 2, p.tlwh[1] + p.tlwh[3] // 2)
-            for rect in self.rectangles:
-                if rect.contains(mid_point):
-                    blue()
-                    break
             painter.drawRect(person_rect)
 
         painter.end()
@@ -120,10 +138,10 @@ class MainWindow(QMainWindow):
 
     def mousePressEvent(self, event):
         """Capture the starting point of the rectangle."""
-        if event.button() == Qt.MouseButton.LeftButton and self.label.underMouse():
+        if event.button() == Qt.MouseButton.LeftButton and self.image_label.underMouse():
             mouse_pos = self.get_mouse_position(event)
             for i, rect in enumerate(self.rectangles):
-                corner, direction = self.is_near_corner(rect, mouse_pos)
+                corner, direction = self.is_pos_near_corner(mouse_pos, rect)
                 if corner:
                     self.resizing_rect = i
                     self.resize_direction = direction
@@ -161,23 +179,15 @@ class MainWindow(QMainWindow):
 
     def get_mouse_position(self, event):
         """Get mouse position relative to the QLabel."""
-        return QPoint(event.pos().x() - self.label.pos().x(), event.pos().y() - self.label.pos().y())
+        return QPoint(event.pos().x() - self.image_label.pos().x(), event.pos().y() - self.image_label.pos().y())
 
-    def get_rect_corners(self, rect):
-        """Get the four corners of a rectangle."""
-        return [
-            rect.topLeft(),
-            rect.topRight(),
-            rect.bottomLeft(),
-            rect.bottomRight()
-        ]
-
-    def is_near_corner(self, rect, pos, margin=10):
+    @staticmethod
+    def is_pos_near_corner(pos, rect, margin=10):
         """Check if the mouse position is near a corner for resizing."""
-        corners = self.get_rect_corners(rect)
+        corners = rect.get_rect_corners()
         directions = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
         for corner, direction in zip(corners, directions):
-            if (abs(corner.x() - pos.x()) <= margin and abs(corner.y() - pos.y()) <= margin):
+            if abs(corner.x() - pos.x()) <= margin and abs(corner.y() - pos.y()) <= margin:
                 return corner, direction
         return None, None
 
