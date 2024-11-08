@@ -1,16 +1,12 @@
-import sys
-
-import numpy as np
-from PySide6 import QtGui
-from PySide6.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QApplication
+from PySide6.QtWidgets import QMainWindow
 from PySide6.QtCore import QTimer, Qt, QRect, QPoint
 from PySide6.QtGui import QImage, QPixmap, QPainter, QColor, QPen
 
+from desktop.video_source.droidcam import DroidcamVideoSource
 from recognizer import Recognizer  # Ensure this imports correctly
-import cv2
 
-from ui.myRect import MyRect
-from ui.view.mainwindow import Ui_Dialog
+from desktop.myRect import MyRect
+from desktop.view.mainwindow import Ui_Dialog
 
 
 class MainWindow(QMainWindow):
@@ -20,7 +16,9 @@ class MainWindow(QMainWindow):
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
         self.setWindowTitle("Face Recognition App")
-        self.recognizer = Recognizer(droidcam_url="https://192.168.0.106:4343/video")
+        vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
+        # vs = None
+        self.recognizer = Recognizer(video_source=vs)
 
         self.image_label = self.ui.ImageLabel
 
@@ -138,8 +136,9 @@ class MainWindow(QMainWindow):
 
     def mousePressEvent(self, event):
         """Capture the starting point of the rectangle."""
+
         if event.button() == Qt.MouseButton.LeftButton and self.image_label.underMouse():
-            mouse_pos = self.get_mouse_position(event)
+            mouse_pos = self.image_label.mapFromGlobal(event.globalPos())
             for i, rect in enumerate(self.rectangles):
                 corner, direction = self.is_pos_near_corner(mouse_pos, rect)
                 if corner:
@@ -151,7 +150,7 @@ class MainWindow(QMainWindow):
 
     def mouseMoveEvent(self, event):
         """Capture the end point of the rectangle while dragging or resizing."""
-        mouse_pos = self.get_mouse_position(event)
+        mouse_pos = self.image_label.mapFromGlobal(event.globalPos())
         if self.resizing_rect is not None:
             rect = self.rectangles[self.resizing_rect]
             if 'top' in self.resize_direction:
@@ -176,10 +175,6 @@ class MainWindow(QMainWindow):
             self.rectangles.append(rect)  # Add the rectangle to the list
             self.start_point = None
             self.end_point = None
-
-    def get_mouse_position(self, event):
-        """Get mouse position relative to the QLabel."""
-        return QPoint(event.pos().x() - self.image_label.pos().x(), event.pos().y() - self.image_label.pos().y())
 
     @staticmethod
     def is_pos_near_corner(pos, rect, margin=10):

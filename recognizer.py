@@ -8,6 +8,7 @@ import torch
 import yaml
 from torchvision import transforms
 
+from desktop.video_source.base import VideoSource
 from face_alignment.alignment import norm_crop
 from face_detection.scrfd.detector import SCRFD
 from face_detection.yolov5_face.detector import Yolov5Face
@@ -36,11 +37,11 @@ class Person:
 
 
 class Recognizer:
-    def __init__(self, droidcam_url: str = None,
+    def __init__(self, video_source: VideoSource = None,
                  tracking_config_file: str = "face_tracking/config/config_tracking.yaml",
                  hud_visible=True):
 
-        self.droidcam_url = droidcam_url
+        self.cap = video_source
         self.tracking_config = self.load_config(tracking_config_file)
         self.hud_visible = hud_visible
 
@@ -66,10 +67,6 @@ class Recognizer:
             "detection_landmarks": [],
             "tracking_bboxes": [],
         }
-        if self.droidcam_url:
-            self.cap = cv2.VideoCapture(self.droidcam_url)
-        else:
-            self.cap = None
 
         self.tracking_image = None
         self.is_running = False
@@ -298,8 +295,8 @@ class Recognizer:
 
         while self.is_running:
             # todo uncomment
-            if self.droidcam_url is not None:
-                _, img = self.cap.read()
+            if self.cap is not None:
+                img = self.cap.get_frame()
             else:
                 img = np.ones((900, 1600, 3), dtype=np.uint8) * 255
 
@@ -327,8 +324,7 @@ class Recognizer:
 
     def __del__(self):
         self.stop()
-        if self.cap is not None:
-            self.cap.release()
+
 
 # Usage Example:
 # recognizer = Recognizer()
