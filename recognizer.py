@@ -75,6 +75,9 @@ class Recognizer:
 
         self.recognized_persons: list[Person] = []
 
+    def set_video_source(self, video_source: VideoSource = None):
+        self.cap = video_source
+
     def get_recognized(self):
         return self.recognized_persons
 
@@ -311,8 +314,10 @@ class Recognizer:
 
     def start(self):
         self.is_running = True
-        self.tracking_thread = threading.Thread(target=self.tracking).start()
-        self.recognition_thread = threading.Thread(target=self.recognize).start()
+        self.tracking_thread = threading.Thread(target=self.tracking)
+        self.tracking_thread.start()
+        self.recognition_thread = threading.Thread(target=self.recognize)
+        self.recognition_thread.start()
 
     def stop(self):
         if self.is_running:
@@ -324,7 +329,6 @@ class Recognizer:
 
     def __del__(self):
         self.stop()
-
 
 # Usage Example:
 # recognizer = Recognizer()

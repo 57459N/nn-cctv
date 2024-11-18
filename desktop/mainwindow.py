@@ -1,26 +1,32 @@
+import urllib.parse
+
 from PySide6.QtWidgets import QMainWindow
 from PySide6.QtCore import QTimer, Qt, QRect, QPoint
 from PySide6.QtGui import QImage, QPixmap, QPainter, QColor, QPen
 
+from desktop.myRect import MyRect
+from desktop.view.droidcam_link_dialog import DroidcamLinkDialog
+from desktop.view.mainwindow import Ui_MainWindow
+
 from desktop.video_source.droidcam import DroidcamVideoSource
 from recognizer import Recognizer  # Ensure this imports correctly
-
-from desktop.myRect import MyRect
-from desktop.view.mainwindow import Ui_Dialog
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.ui = Ui_Dialog()
+        self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle("Face Recognition App")
-        vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
-        # vs = None
-        self.recognizer = Recognizer(video_source=vs)
-
         self.image_label = self.ui.ImageLabel
+        self.text_label = self.ui.TextLabel
+
+        self.ui.actionVSDroidcam.triggered.connect(self.get_droidcam_link)
+
+        self.setWindowTitle("Face Recognition App")
+        # vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
+        vs = None
+        self.recognizer = Recognizer(video_source=vs)
 
         # Timer to update frame
         self.timer = QTimer(self)
@@ -38,6 +44,16 @@ class MainWindow(QMainWindow):
         self.recognizer.start()
 
         self.marked_persons = {}
+
+    def get_droidcam_link(self):
+        dlg = DroidcamLinkDialog()
+        if dlg.exec():
+            text = dlg.lineEdit.text()
+            vs = DroidcamVideoSource(text)
+            self.recognizer.set_video_source(vs)
+            print(f"Set VS to {text}")
+        else:
+            print("Cancelled")
 
     def toggle_hud(self):
         """Toggle HUD visibility."""
@@ -76,7 +92,7 @@ class MainWindow(QMainWindow):
 
         text = 'Marked:\n\t'
         text += '\n\t'.join(self.marked_persons.keys())
-        self.ui.TextLabel.setText(text)
+        self.text_label.setText(text)
 
     def paint_recognitions(self, q_img):
         # Draw rectangles on the frame copy
