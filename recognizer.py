@@ -21,8 +21,9 @@ from face_tracking.tracker.visualize import plot_tracking
 @dataclasses.dataclass
 class Person:
     name: str
-    tlwh: np.ndarray
     score: float
+    tlwh: np.ndarray
+    is_unknown: bool = False
 
     def __str__(self):
         return f"{self.name} {self.score} {self.tlwh}"
@@ -137,13 +138,15 @@ class Recognizer:
                     tracking_scores.append(t.score)
 
             recs = []
-            for i, tlwh in enumerate(tracking_tlwhs):
-                obj_id = int(tracking_ids[i])
-                name = None
-                score = None
+            for obj_id, tlwh in zip(tracking_ids, tracking_tlwhs):
+                obj_id = int(obj_id)
+
                 if obj_id in self.id_face_mapping:
-                    name, score = self.id_face_mapping[obj_id].split(":")
-                recs.append(Person(name, np.array(tlwh), score))
+                    if name_score := self.id_face_mapping[obj_id] != 'UN_KNOWN':
+                        person = Person(*name_score.split(":"), tlwh=np.array(tlwh), is_unknown=False)
+                    else:
+                        person = Person(name="UN_KNOWN", score=0, tlwh=np.array(tlwh), is_unknown=True)
+                    recs.append(person)
 
             self.recognized_persons = recs
 
