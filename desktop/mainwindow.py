@@ -1,4 +1,6 @@
+import copy
 import urllib.parse
+from pathlib import Path
 
 from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtCore import QTimer, Qt, QRect, QPoint
@@ -52,15 +54,19 @@ class MainWindow(QMainWindow):
 
         self.marked_persons = {}
 
+    def change_video_source(self, vs):
+        path = Path('temp.rcfg')
+        self.save_save(path)
+        self.frame = vs.get_frame()
+        self.recognizer.set_video_source(vs)
+        self.load_save(path)
+        path.unlink()
+
     def get_droidcam_link(self):
         dlg = DroidcamLinkDialog()
         if dlg.exec():
             text = dlg.lineEdit.text()
-            vs = DroidcamVideoSource(text)
-            self.recognizer.set_video_source(vs)
-            print(f"Set VS to {text}")
-        else:
-            print("Cancelled")
+            self.change_video_source(DroidcamVideoSource(text))
 
     def get_camera_by_index(self):
         while True:
@@ -71,13 +77,9 @@ class MainWindow(QMainWindow):
                     index = int(text)
                 except ValueError:
                     continue
-
-                vs = CameraByIndex(index)
-                self.recognizer.set_video_source(vs)
-                print(f"Set VS to {index}'s camera")
+                self.change_video_source(CameraByIndex(index))
                 break
             else:
-                print("Cancelled")
                 break
 
     def save_save(self, path: Path = None):
