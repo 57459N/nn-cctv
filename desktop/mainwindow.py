@@ -1,5 +1,4 @@
 import copy
-import urllib.parse
 from pathlib import Path
 
 from PySide6.QtWidgets import QMainWindow, QFileDialog
