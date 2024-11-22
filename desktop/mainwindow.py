@@ -5,6 +5,8 @@ from PySide6.QtCore import QTimer, Qt, QRect, QPoint
 from PySide6.QtGui import QImage, QPixmap, QPainter, QColor, QPen
 
 from desktop.myRect import MyRect
+from desktop.video_source.CameraByIndex import CameraByIndex
+from desktop.view.camera_index_dialog import CameraIndexDialog
 from desktop.view.droidcam_link_dialog import DroidcamLinkDialog
 from desktop.view.mainwindow import Ui_MainWindow
 
@@ -22,10 +24,12 @@ class MainWindow(QMainWindow):
         self.text_label = self.ui.TextLabel
 
         self.ui.actionVSDroidcam.triggered.connect(self.get_droidcam_link)
+        self.ui.actionVSCameraByIndex.triggered.connect(self.get_camera_by_index)
 
         self.setWindowTitle("Face Recognition App")
         # vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
-        vs = None
+        vs = CameraByIndex(0)
+        # vs = None
         self.recognizer = Recognizer(video_source=vs)
 
         # Timer to update frame
@@ -54,6 +58,24 @@ class MainWindow(QMainWindow):
             print(f"Set VS to {text}")
         else:
             print("Cancelled")
+
+    def get_camera_by_index(self):
+        while True:
+            dlg = CameraIndexDialog()
+            if dlg.exec():
+                text = dlg.lineEdit.text()
+                try:
+                    index = int(text)
+                except ValueError:
+                    continue
+
+                vs = CameraByIndex(index)
+                self.recognizer.set_video_source(vs)
+                print(f"Set VS to {index}'s camera")
+                break
+            else:
+                print("Cancelled")
+                break
 
     def toggle_hud(self):
         """Toggle HUD visibility."""
@@ -203,5 +225,6 @@ class MainWindow(QMainWindow):
         return None, None
 
     def closeEvent(self, event):
-        self.recognizer.stop()  # Ensure recognizer is stopped
+        if self.recognizer:
+            self.recognizer.stop()  # Ensure recognizer is stopped
         event.accept()  # Accept the event to close the window

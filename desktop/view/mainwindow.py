@@ -24,13 +24,17 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(2016, 1069)
+        MainWindow.resize(1920, 1080)
         self.actionSaveConfig = QAction(MainWindow)
         self.actionSaveConfig.setObjectName(u"actionSaveConfig")
         self.actionLoadConfog = QAction(MainWindow)
         self.actionLoadConfog.setObjectName(u"actionLoadConfog")
         self.actionVSDroidcam = QAction(MainWindow)
         self.actionVSDroidcam.setObjectName(u"actionVSDroidcam")
+
+        self.actionVSCameraByIndex = QAction(MainWindow)
+        self.actionVSCameraByIndex.setObjectName(u"actionVSCameraByIndex")
+
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayoutWidget = QWidget(self.centralwidget)
@@ -88,6 +92,7 @@ class Ui_MainWindow(object):
         self.menuMenu.addAction(self.actionLoadConfog)
         self.menuSettings.addAction(self.menuVideo_sourse.menuAction())
         self.menuVideo_sourse.addAction(self.actionVSDroidcam)
+        self.menuVideo_sourse.addAction(self.actionVSCameraByIndex)
 
         self.retranslateUi(MainWindow)
 
@@ -99,6 +104,7 @@ class Ui_MainWindow(object):
         self.actionSaveConfig.setText(QCoreApplication.translate("MainWindow", u"Save", None))
         self.actionLoadConfog.setText(QCoreApplication.translate("MainWindow", u"Load", None))
         self.actionVSDroidcam.setText(QCoreApplication.translate("MainWindow", u"Droidcam", None))
+        self.actionVSCameraByIndex.setText(QCoreApplication.translate("MainWindow", u"Camera by index", None))
         self.ImageLabel.setText(QCoreApplication.translate("MainWindow", u"ImageLabel", None))
         self.TextLabel.setText(QCoreApplication.translate("MainWindow", u"List of Students", None))
         self.menuMenu.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
