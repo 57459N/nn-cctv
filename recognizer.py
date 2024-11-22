@@ -54,7 +54,7 @@ class Recognizer:
 
         self.device = torch.device('cpu')
 
-        self.detector = SCRFD(model_file="face_detection/scrfd/weights/scrfd_2.5g_bnkps.onnx")
+        self.detector = SCRFD(model_file="face_detection/scrfd/weights/scrfd_10g_bnkps.onnx")
         # self.detector = Yolov5Face(model_file="face_detection/yolov5_face/weights/yolov5n-0.5.pt")
 
         self.recognizer = iresnet_inference(

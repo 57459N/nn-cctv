@@ -1,10 +1,11 @@
 import urllib.parse
 
-from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtCore import QTimer, Qt, QRect, QPoint
 from PySide6.QtGui import QImage, QPixmap, QPainter, QColor, QPen
 
 from desktop.myRect import MyRect
+from desktop.save import Save
 from desktop.video_source.CameraByIndex import CameraByIndex
 from desktop.view.camera_index_dialog import CameraIndexDialog
 from desktop.view.droidcam_link_dialog import DroidcamLinkDialog
@@ -25,12 +26,13 @@ class MainWindow(QMainWindow):
 
         self.ui.actionVSDroidcam.triggered.connect(self.get_droidcam_link)
         self.ui.actionVSCameraByIndex.triggered.connect(self.get_camera_by_index)
-
+        self.ui.actionSaveSave.triggered.connect(self.save_save)
+        self.ui.actionLoadSave.triggered.connect(self.load_save)
 
         self.setWindowTitle("Face Recognition App")
-        # vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
-        vs = CameraByIndex(0)
+        vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
         # vs = None
+        # vs = CameraByIndex(0)
         self.recognizer = Recognizer(video_source=vs)
 
         # Timer to update frame
@@ -78,9 +80,40 @@ class MainWindow(QMainWindow):
                 print("Cancelled")
                 break
 
-    def save_rectangles(self):
-        pass
+    def save_save(self, path: Path = None):
+        save = Save(rectangles=self.rectangles,
+                    image_height=self.frame.shape[0],
+                    image_width=self.frame.shape[1])
+        if path:
+            save.save(path)
+        else:
+            dlg = QFileDialog()
+            dlg.setFileMode(QFileDialog.AnyFile)
+            dlg.setAcceptMode(QFileDialog.AcceptSave)
+            if dlg.exec():
+                save.save(Path(dlg.selectedFiles()[0]).with_suffix('.rcfg'))
 
+    def load_save(self, path: Path = None):
+        if path:
+            save = Save.load(path)
+        else:
+            dlg = QFileDialog()
+            dlg.setFileMode(QFileDialog.AnyFile)
+            dlg.setAcceptMode(QFileDialog.AcceptOpen)
+            if dlg.exec():
+                save = Save.load(Path(dlg.selectedFiles()[0]))
+            else:
+                return
+
+        x_ratio = self.frame.shape[1] / save.image_width
+        y_ratio = self.frame.shape[0] / save.image_height
+        self.rectangles = []
+        for rect in save.rectangles:
+            r = copy.deepcopy(rect)
+            self.rectangles.append(MyRect(int(r.x() * x_ratio),
+                                          int(r.y() * y_ratio),
+                                          int(r.width() * x_ratio),
+                                          int(r.height()) * y_ratio))
 
     def toggle_hud(self):
         """Toggle HUD visibility."""
