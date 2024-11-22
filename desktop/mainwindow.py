@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
         self.ui.actionVSDroidcam.triggered.connect(self.get_droidcam_link)
         self.ui.actionVSCameraByIndex.triggered.connect(self.get_camera_by_index)
 
+
         self.setWindowTitle("Face Recognition App")
         # vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
         vs = CameraByIndex(0)
@@ -76,6 +77,10 @@ class MainWindow(QMainWindow):
             else:
                 print("Cancelled")
                 break
+
+    def save_rectangles(self):
+        pass
+
 
     def toggle_hud(self):
         """Toggle HUD visibility."""

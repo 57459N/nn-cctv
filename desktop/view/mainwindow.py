@@ -25,10 +25,10 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1920, 1080)
-        self.actionSaveConfig = QAction(MainWindow)
-        self.actionSaveConfig.setObjectName(u"actionSaveConfig")
-        self.actionLoadConfog = QAction(MainWindow)
-        self.actionLoadConfog.setObjectName(u"actionLoadConfog")
+        self.actionSaveSave = QAction(MainWindow)
+        self.actionSaveSave.setObjectName(u"actionSaveSave")
+        self.actionLoadSave = QAction(MainWindow)
+        self.actionLoadSave.setObjectName(u"actionLoadSave")
         self.actionVSDroidcam = QAction(MainWindow)
         self.actionVSDroidcam.setObjectName(u"actionVSDroidcam")
 
@@ -88,8 +88,8 @@ class Ui_MainWindow(object):
 
         self.menubar.addAction(self.menuMenu.menuAction())
         self.menubar.addAction(self.menuSettings.menuAction())
-        self.menuMenu.addAction(self.actionSaveConfig)
-        self.menuMenu.addAction(self.actionLoadConfog)
+        self.menuMenu.addAction(self.actionSaveSave)
+        self.menuMenu.addAction(self.actionLoadSave)
         self.menuSettings.addAction(self.menuVideo_sourse.menuAction())
         self.menuVideo_sourse.addAction(self.actionVSDroidcam)
         self.menuVideo_sourse.addAction(self.actionVSCameraByIndex)
@@ -101,8 +101,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.actionSaveConfig.setText(QCoreApplication.translate("MainWindow", u"Save", None))
-        self.actionLoadConfog.setText(QCoreApplication.translate("MainWindow", u"Load", None))
+        self.actionSaveSave.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+        self.actionLoadSave.setText(QCoreApplication.translate("MainWindow", u"Load", None))
         self.actionVSDroidcam.setText(QCoreApplication.translate("MainWindow", u"Droidcam", None))
         self.actionVSCameraByIndex.setText(QCoreApplication.translate("MainWindow", u"Camera by index", None))
         self.ImageLabel.setText(QCoreApplication.translate("MainWindow", u"ImageLabel", None))
