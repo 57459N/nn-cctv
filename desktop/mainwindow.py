@@ -108,7 +108,7 @@ class MainWindow(QMainWindow):
                 continue
 
             for rect in self.rectangles:
-                if rect.contains(mid_point):
+                if rect.contains(mid_point) and not p.is_unknown:
                     self.marked_persons[p.name] = p
                     break
 
@@ -132,6 +132,10 @@ class MainWindow(QMainWindow):
             painter.setPen(QPen(QColor(255, 0, 255), 5))
             painter.setBrush(QColor(255, 0, 255, 0))
 
+        def red():
+            painter.setPen(QPen(QColor(255, 0, 0), 5))
+            painter.setBrush(QColor(255, 0, 0, 0))
+
         for p in self.recognizer.get_recognized():
             green()
 
@@ -143,6 +147,9 @@ class MainWindow(QMainWindow):
                     if rect.contains(mid_point):
                         blue()
                         break
+
+            if p.is_unknown:
+                red()
 
             person_rect = QRect(*p.tlwh)
             painter.drawRect(person_rect)
