@@ -37,10 +37,14 @@ class Person:
         return self.name == other.name
 
 
+
 class Recognizer:
     def __init__(self, video_source: VideoSource = None,
                  tracking_config_file: str = "face_tracking/config/config_tracking.yaml",
                  hud_visible=True):
+
+        self.is_running = None
+        self.tracking_thread = None
 
         self.cap = video_source
         self.tracking_config = self.load_config(tracking_config_file)
@@ -50,8 +54,8 @@ class Recognizer:
 
         self.device = torch.device('cpu')
 
-        self.detector = SCRFD(model_file="face_detection/scrfd/weights/scrfd_10g_bnkps.onnx")
-        # self.detector = Yolov5Face(model_file="face_detection/yolov5_face/weights/yolov5n-face.pt")
+        # self.detector = SCRFD(model_file="face_detection/scrfd/weights/scrfd_10g_bnkps.onnx")
+        self.detector = Yolov5Face(model_file="face_detection/yolov5_face/weights/yolov5n-0.5.pt")
 
         self.recognizer = iresnet_inference(
             model_name="r100", path="face_recognition/arcface/weights/arcface_r100.pth", device=self.device
@@ -70,10 +74,6 @@ class Recognizer:
         }
 
         self.tracking_image = None
-        self.is_running = False
-        self.tracking_thread = None
-        self.recognition_thread = None
-
         self.recognized_persons: list[Person] = []
 
     def set_video_source(self, video_source: VideoSource = None):
@@ -141,8 +141,8 @@ class Recognizer:
             for obj_id, tlwh in zip(tracking_ids, tracking_tlwhs):
                 obj_id = int(obj_id)
 
-                if obj_id in self.id_face_mapping:
-                    if name_score := self.id_face_mapping[obj_id] != 'UN_KNOWN':
+                if name_score := self.id_face_mapping.get(obj_id):
+                    if name_score != 'UN_KNOWN':
                         person = Person(*name_score.split(":"), tlwh=np.array(tlwh), is_unknown=False)
                     else:
                         person = Person(name="UN_KNOWN", score=0, tlwh=np.array(tlwh), is_unknown=True)
@@ -303,6 +303,8 @@ class Recognizer:
             # todo uncomment
             if self.cap is not None:
                 img = self.cap.get_frame()
+                if img is None:
+                    img = np.ones((900, 1600, 3), dtype=np.uint8) * 255
             else:
                 img = np.ones((900, 1600, 3), dtype=np.uint8) * 255
 
