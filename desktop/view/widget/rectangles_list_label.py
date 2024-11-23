@@ -24,11 +24,14 @@ class RectanglesLabelList(QLabel):
     def get_start_end_points(self):
         return self.start_point, self.end_point
 
+    def pop_last_rect(self):
+        if self.rectangles:
+            self.rectangles.pop()
+
     def keyPressEvent(self, event):
         """Handle key press events."""
         if event.key() == Qt.Key.Key_Z and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
-            if self.rectangles:
-                self.rectangles.pop()  # Remove the last rectangle
+            self.pop_last_rect()
 
     def mousePressEvent(self, event):
         """Capture the starting point of the rectangle."""

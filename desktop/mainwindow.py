@@ -213,6 +213,11 @@ class MainWindow(QMainWindow):
 
         painter.end()
 
+    def keyPressEvent(self, event):
+        """Handle key press events."""
+        if event.key() == Qt.Key.Key_Z and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            self.image_rectangles_label.pop_last_rect()
+
     def closeEvent(self, event):
         if self.recognizer:
             self.recognizer.stop()  # Ensure recognizer is stopped
