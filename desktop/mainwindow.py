@@ -137,10 +137,6 @@ class MainWindow(QMainWindow):
             self.image_label.setFixedSize(width, height)
             self.image_label.setPixmap(pixmap)
 
-    def add_person_to_list(self, person):
-        """Delegate to the MarkedPersonsWidget."""
-        self.marked_persons_widget_dict.add_person(person)
-
     def process_recognitions(self):
         for p in self.recognizer.get_recognized():
             if p.score is None:

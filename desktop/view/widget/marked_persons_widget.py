@@ -30,26 +30,36 @@ class MarkedPersonsWidget(QWidget):
         person_layout.addSpacerItem(spacer)
 
         remove_button = QPushButton("Remove")
-        remove_button.clicked.connect(lambda: self.remove_person(person.name, person_layout))
+        remove_button.clicked.connect(lambda: self.remove_person(person.name))
         person_layout.addWidget(remove_button)
 
         self.layout.addLayout(person_layout)
 
-    def remove_person(self, name, layout):
+    def remove_person(self, name):
         """
-        Remove a person from the list and the UI.
+        Remove a person from the list and the UI based on their name.
         :param name: The name of the person to remove.
-        :param layout: The layout corresponding to the person.
         """
+        # Remove from dictionary
         self.marked_persons.pop(name, None)
 
-        while layout.count():
-            item = layout.takeAt(0)
-            widget = item.widget()
-            if widget:
-                widget.deleteLater()
+        for i in range(self.layout.count()):
+            item = self.layout.itemAt(i)
+            if not isinstance(item, QHBoxLayout):
+                continue
 
-        self.layout.removeItem(layout)
+            # Check if the first widget in the layout is a QLabel with the matching name
+            if not (isinstance(item.itemAt(0).widget(), QLabel) and item.itemAt(0).widget().text() == name):
+                continue
+
+            # Remove all widgets in the layout and layout itself
+            while item.count():
+                widget_item = item.takeAt(0)
+                widget = widget_item.widget()
+                if widget:
+                    widget.deleteLater()
+            self.layout.removeItem(item)
+            break
 
     def __contains__(self, item):
         return item in self.marked_persons
