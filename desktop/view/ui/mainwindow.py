@@ -33,6 +33,8 @@ class Ui_MainWindow(object):
         self.actionVSDroidcam.setObjectName(u"actionVSDroidcam")
         self.actionVSCameraByIndex = QAction(MainWindow)
         self.actionVSCameraByIndex.setObjectName(u"actionVSCameraByIndex")
+        self.actionToggleHUD = QAction(MainWindow)
+        self.actionToggleHUD.setObjectName(u"actionToggleHUD")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayoutWidget = QWidget(self.centralwidget)
@@ -84,6 +86,8 @@ class Ui_MainWindow(object):
         self.menuSettings.setObjectName(u"menuSettings")
         self.menuVideo_sourse = QMenu(self.menuSettings)
         self.menuVideo_sourse.setObjectName(u"menuVideo_sourse")
+        self.menuHUD = QMenu(self.menubar)
+        self.menuHUD.setObjectName(u"menuHUD")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -91,11 +95,13 @@ class Ui_MainWindow(object):
 
         self.menubar.addAction(self.menuMenu.menuAction())
         self.menubar.addAction(self.menuSettings.menuAction())
+        self.menubar.addAction(self.menuHUD.menuAction())
         self.menuMenu.addAction(self.actionSaveSave)
         self.menuMenu.addAction(self.actionLoadSave)
         self.menuSettings.addAction(self.menuVideo_sourse.menuAction())
         self.menuVideo_sourse.addAction(self.actionVSDroidcam)
         self.menuVideo_sourse.addAction(self.actionVSCameraByIndex)
+        self.menuHUD.addAction(self.actionToggleHUD)
 
         self.retranslateUi(MainWindow)
 
@@ -108,9 +114,11 @@ class Ui_MainWindow(object):
         self.actionLoadSave.setText(QCoreApplication.translate("MainWindow", u"Load", None))
         self.actionVSDroidcam.setText(QCoreApplication.translate("MainWindow", u"Droidcam", None))
         self.actionVSCameraByIndex.setText(QCoreApplication.translate("MainWindow", u"Camera by index", None))
+        self.actionToggleHUD.setText(QCoreApplication.translate("MainWindow", u"Toggle", None))
         self.TextLabel.setText(QCoreApplication.translate("MainWindow", u"List of Students", None))
         self.menuMenu.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuSettings.setTitle(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.menuVideo_sourse.setTitle(QCoreApplication.translate("MainWindow", u"Video sourse", None))
+        self.menuHUD.setTitle(QCoreApplication.translate("MainWindow", u"HUD", None))
     # retranslateUi
 

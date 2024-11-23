@@ -119,8 +119,15 @@
     </widget>
     <addaction name="menuVideo_sourse"/>
    </widget>
+   <widget class="QMenu" name="menuHUD">
+    <property name="title">
+     <string>HUD</string>
+    </property>
+    <addaction name="actionToggleHUD"/>
+   </widget>
    <addaction name="menuMenu"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuHUD"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSaveSave">
@@ -141,6 +148,11 @@
   <action name="actionVSCameraByIndex">
    <property name="text">
     <string>Camera by index</string>
+   </property>
+  </action>
+  <action name="actionToggleHUD">
+   <property name="text">
+    <string>Toggle</string>
    </property>
   </action>
  </widget>

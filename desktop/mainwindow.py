@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
         self.ui.actionVSCameraByIndex.triggered.connect(self.get_camera_by_index)
         self.ui.actionSaveSave.triggered.connect(self.save_save)
         self.ui.actionLoadSave.triggered.connect(self.load_save)
+        self.ui.actionToggleHUD.triggered.connect(self.toggle_hud)
 
         self.setWindowTitle("Face Recognition App")
         vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
@@ -41,7 +42,6 @@ class MainWindow(QMainWindow):
         # vs = CameraByIndex(0)
 
         self.recognizer = Recognizer(video_source=vs)
-        self.toggle_hud(state=False)
 
         # Timer to update frame
         self.timer = QTimer(self)
@@ -85,7 +85,8 @@ class MainWindow(QMainWindow):
     def save_save(self, path: Path = None):
         save = Save(rectangles=self.image_rectangles_label.get_rectangles(),
                     image_height=self.frame.shape[0],
-                    image_width=self.frame.shape[1])
+                    image_width=self.frame.shape[1],
+                    is_hud_visible=self.recognizer.is_hud_visible())
         if path:
             save.save(path)
         else:
@@ -118,11 +119,10 @@ class MainWindow(QMainWindow):
                                      int(r.height()) * y_ratio))
         self.image_rectangles_label.set_rectangles(rectangles)
 
-    def toggle_hud(self, state=None):
-        if isinstance(state, bool):
-            self.recognizer.set_hud_visible(state)
-        else:
-            self.recognizer.set_hud_visible(not self.recognizer.is_hud_visible())
+        self.recognizer.set_hud_visible(save.is_hud_visible)
+
+    def toggle_hud(self):
+        self.recognizer.set_hud_visible(not self.recognizer.is_hud_visible())
 
     def update_frame(self):
         """Update the displayed frame."""
