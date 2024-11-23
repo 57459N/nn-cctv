@@ -41,13 +41,8 @@ class Ui_MainWindow(object):
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.ImageLabel = QLabel(self.verticalLayoutWidget)
-        self.ImageLabel.setObjectName(u"ImageLabel")
-
-        self.horizontalLayout.addWidget(self.ImageLabel)
-
+        self.MainHLayout = QHBoxLayout()
+        self.MainHLayout.setObjectName(u"MainHLayout")
         self.verticalLayout_2 = QVBoxLayout()
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.TextLabel = QLabel(self.verticalLayoutWidget)
@@ -66,14 +61,14 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addItem(self.verticalSpacer_2)
 
 
-        self.horizontalLayout.addLayout(self.verticalLayout_2)
+        self.MainHLayout.addLayout(self.verticalLayout_2)
 
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout.addItem(self.horizontalSpacer)
+        self.MainHLayout.addItem(self.horizontalSpacer)
 
 
-        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.verticalLayout.addLayout(self.MainHLayout)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -113,7 +108,6 @@ class Ui_MainWindow(object):
         self.actionLoadSave.setText(QCoreApplication.translate("MainWindow", u"Load", None))
         self.actionVSDroidcam.setText(QCoreApplication.translate("MainWindow", u"Droidcam", None))
         self.actionVSCameraByIndex.setText(QCoreApplication.translate("MainWindow", u"Camera by index", None))
-        self.ImageLabel.setText(QCoreApplication.translate("MainWindow", u"ImageLabel", None))
         self.TextLabel.setText(QCoreApplication.translate("MainWindow", u"List of Students", None))
         self.menuMenu.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuSettings.setTitle(QCoreApplication.translate("MainWindow", u"Settings", None))
