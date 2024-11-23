@@ -31,15 +31,13 @@ class Ui_MainWindow(object):
         self.actionLoadSave.setObjectName(u"actionLoadSave")
         self.actionVSDroidcam = QAction(MainWindow)
         self.actionVSDroidcam.setObjectName(u"actionVSDroidcam")
-
         self.actionVSCameraByIndex = QAction(MainWindow)
         self.actionVSCameraByIndex.setObjectName(u"actionVSCameraByIndex")
-
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayoutWidget = QWidget(self.centralwidget)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(30, 60, 1911, 931))
+        self.verticalLayoutWidget.setGeometry(QRect(30, 60, 1821, 931))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -54,8 +52,14 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.TextLabel = QLabel(self.verticalLayoutWidget)
         self.TextLabel.setObjectName(u"TextLabel")
+        self.TextLabel.setMaximumSize(QSize(300, 16777215))
 
         self.verticalLayout_2.addWidget(self.TextLabel)
+
+        self.StudentsListLayout = QVBoxLayout()
+        self.StudentsListLayout.setObjectName(u"StudentsListLayout")
+
+        self.verticalLayout_2.addLayout(self.StudentsListLayout)
 
         self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -63,6 +67,10 @@ class Ui_MainWindow(object):
 
 
         self.horizontalLayout.addLayout(self.verticalLayout_2)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout)
@@ -74,7 +82,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 2016, 33))
+        self.menubar.setGeometry(QRect(0, 0, 1920, 33))
         self.menuMenu = QMenu(self.menubar)
         self.menuMenu.setObjectName(u"menuMenu")
         self.menuSettings = QMenu(self.menubar)

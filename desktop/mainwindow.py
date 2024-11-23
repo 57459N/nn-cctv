@@ -5,12 +5,13 @@ from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtCore import QTimer, Qt, QRect, QPoint
 from PySide6.QtGui import QImage, QPixmap, QPainter, QColor, QPen
 
+from desktop.view.widget.marked_persons_widget import MarkedPersonsWidget
 from desktop.myRect import MyRect
 from desktop.save import Save
-from desktop.video_source.CameraByIndex import CameraByIndex
-from desktop.view.camera_index_dialog import CameraIndexDialog
-from desktop.view.droidcam_link_dialog import DroidcamLinkDialog
-from desktop.view.mainwindow import Ui_MainWindow
+from desktop.video_source.camera_by_index import CameraByIndex
+from desktop.view.dialog.camera_index_dialog import CameraIndexDialog
+from desktop.view.dialog.droidcam_link_dialog import DroidcamLinkDialog
+from desktop.view.ui.mainwindow import Ui_MainWindow
 
 from desktop.video_source.droidcam import DroidcamVideoSource
 from recognizer import Recognizer  # Ensure this imports correctly
@@ -51,7 +52,8 @@ class MainWindow(QMainWindow):
         self.frame = None
         self.recognizer.start()
 
-        self.marked_persons = {}
+        self.marked_persons_widget_dict = MarkedPersonsWidget(self)
+        self.ui.StudentsListLayout.addWidget(self.marked_persons_widget_dict)
 
     def change_video_source(self, vs):
         path = Path('temp.rcfg')
@@ -135,6 +137,10 @@ class MainWindow(QMainWindow):
             self.image_label.setFixedSize(width, height)
             self.image_label.setPixmap(pixmap)
 
+    def add_person_to_list(self, person):
+        """Delegate to the MarkedPersonsWidget."""
+        self.marked_persons_widget_dict.add_person(person)
+
     def process_recognitions(self):
         for p in self.recognizer.get_recognized():
             if p.score is None:
@@ -142,18 +148,14 @@ class MainWindow(QMainWindow):
 
             mid_point = QPoint(p.tlwh[0] + p.tlwh[2] // 2, p.tlwh[1] + p.tlwh[3] // 2)
 
-            if p.name in self.marked_persons:
-                self.marked_persons[p.name] = p
+            if p.name in self.marked_persons_widget_dict:
+                self.marked_persons_widget_dict.update_person(p)
                 continue
 
             for rect in self.rectangles:
                 if rect.contains(mid_point) and not p.is_unknown:
-                    self.marked_persons[p.name] = p
+                    self.marked_persons_widget_dict.add_person(p)
                     break
-
-        text = 'Marked:\n\t'
-        text += '\n\t'.join(self.marked_persons.keys())
-        self.text_label.setText(text)
 
     def paint_recognitions(self, q_img):
         # Draw rectangles on the frame copy
@@ -178,7 +180,7 @@ class MainWindow(QMainWindow):
         for p in self.recognizer.get_recognized():
             green()
 
-            if p.name in self.marked_persons:
+            if p.name in self.marked_persons_widget_dict:
                 purple()
             else:
                 mid_point = QPoint(p.tlwh[0] + p.tlwh[2] // 2, p.tlwh[1] + p.tlwh[3] // 2)
