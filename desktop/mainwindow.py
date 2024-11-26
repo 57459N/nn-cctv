@@ -1,10 +1,12 @@
 import copy
 from pathlib import Path
 
+import cv2
 from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtCore import QTimer, Qt, QRect, QPoint
 from PySide6.QtGui import QImage, QPixmap, QPainter, QColor, QPen
 
+from desktop.view.dialog.scale_dialog import ScaleDialog
 from desktop.view.widget.marked_persons_widget import MarkedPersonsWidget
 from desktop.myRect import MyRect
 from desktop.save import Save
@@ -35,11 +37,12 @@ class MainWindow(QMainWindow):
         self.ui.actionSaveSave.triggered.connect(self.save_save)
         self.ui.actionLoadSave.triggered.connect(self.load_save)
         self.ui.actionToggleHUD.triggered.connect(self.toggle_hud)
+        self.ui.actionScaleVideo.triggered.connect(self.scale)
 
         self.setWindowTitle("Face Recognition App")
-        vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
+        # vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
         # vs = None
-        # vs = CameraByIndex(0)
+        vs = CameraByIndex(0)
 
         self.recognizer = Recognizer(video_source=vs)
 
@@ -49,10 +52,14 @@ class MainWindow(QMainWindow):
         self.timer.start(1000 // 30)  # 30 FPS
 
         self.frame = None
+        self.scale_factor: float = 1
+
         self.recognizer.start()
 
         self.marked_persons_widget_dict = MarkedPersonsWidget(self)
         self.ui.StudentsListLayout.addWidget(self.marked_persons_widget_dict)
+
+
 
     def change_video_source(self, vs):
         path = Path('temp.rcfg')
@@ -81,6 +88,19 @@ class MainWindow(QMainWindow):
                 break
             else:
                 break
+
+    def scale(self):
+        while True:
+            dlg = ScaleDialog(default_value=str(self.scale_factor))
+
+            if not dlg.exec_():
+                break
+            try:
+                new_scale = float(dlg.lineEdit.text())
+            except ValueError:
+                continue
+            self.scale_factor = new_scale
+            break
 
     def save_save(self, path: Path = None):
         save = Save(rectangles=self.image_rectangles_label.get_rectangles(),
@@ -121,6 +141,8 @@ class MainWindow(QMainWindow):
 
         self.recognizer.set_hud_visible(save.is_hud_visible)
 
+    # def scale_rectangles(self, x_ratio: float, y_ratio: float):
+
     def toggle_hud(self):
         self.recognizer.set_hud_visible(not self.recognizer.is_hud_visible())
 
@@ -132,12 +154,10 @@ class MainWindow(QMainWindow):
             q_img = QImage(self.frame.data, width, height, 3 * width, QImage.Format.Format_BGR888)
 
             self.process_recognitions()
-            self.paint_rectangles(q_img)
             self.paint_recognitions(q_img)
-
-            pixmap = QPixmap.fromImage(q_img)
-            self.image_rectangles_label.setFixedSize(width, height)
-            self.image_rectangles_label.setPixmap(pixmap)
+            self.image_rectangles_label.set_image(q_img)
+            self.image_rectangles_label.scale(self.scale_factor)
+            self.image_rectangles_label.show_image()
 
     def process_recognitions(self):
         for p in self.recognizer.get_recognized():
@@ -156,7 +176,6 @@ class MainWindow(QMainWindow):
                     break
 
     def paint_recognitions(self, q_img):
-        # Draw rectangles on the frame copy
         painter = QPainter(q_img)
 
         def green():
@@ -192,24 +211,6 @@ class MainWindow(QMainWindow):
 
             person_rect = QRect(*p.tlwh)
             painter.drawRect(person_rect)
-
-        painter.end()
-
-    def paint_rectangles(self, q_img):
-        # Draw rectangles on the frame copy
-        painter = QPainter(q_img)
-
-        for rect in self.image_rectangles_label.get_rectangles():
-            rect.draw(painter)
-
-        # Show non-yet-created rectangle while holding mouse key
-        start_point, end_point = self.image_rectangles_label.get_start_end_points()
-        if start_point is not None and end_point is not None:
-            painter.setPen(QPen(QColor(255, 0, 0), 5))
-            painter.setBrush(QColor(255, 0, 0, 90))
-            painter.drawRect(QRect(start_point.x(), start_point.y(),
-                                   end_point.x() - start_point.x(),
-                                   end_point.y() - start_point.y()))
 
         painter.end()
 

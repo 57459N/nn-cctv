@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainwindow.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.7.3
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1920, 1080)
+        MainWindow.resize(1471, 934)
         self.actionSaveSave = QAction(MainWindow)
         self.actionSaveSave.setObjectName(u"actionSaveSave")
         self.actionLoadSave = QAction(MainWindow)
@@ -35,11 +35,13 @@ class Ui_MainWindow(object):
         self.actionVSCameraByIndex.setObjectName(u"actionVSCameraByIndex")
         self.actionToggleHUD = QAction(MainWindow)
         self.actionToggleHUD.setObjectName(u"actionToggleHUD")
+        self.actionScaleVideo = QAction(MainWindow)
+        self.actionScaleVideo.setObjectName(u"actionScaleVideo")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayoutWidget = QWidget(self.centralwidget)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(30, 60, 1821, 931))
+        self.verticalLayoutWidget.setGeometry(QRect(30, 30, 1411, 851))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -79,7 +81,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1920, 33))
+        self.menubar.setGeometry(QRect(0, 0, 1471, 22))
         self.menuMenu = QMenu(self.menubar)
         self.menuMenu.setObjectName(u"menuMenu")
         self.menuSettings = QMenu(self.menubar)
@@ -99,6 +101,7 @@ class Ui_MainWindow(object):
         self.menuMenu.addAction(self.actionSaveSave)
         self.menuMenu.addAction(self.actionLoadSave)
         self.menuSettings.addAction(self.menuVideo_sourse.menuAction())
+        self.menuSettings.addAction(self.actionScaleVideo)
         self.menuVideo_sourse.addAction(self.actionVSDroidcam)
         self.menuVideo_sourse.addAction(self.actionVSCameraByIndex)
         self.menuHUD.addAction(self.actionToggleHUD)
@@ -115,9 +118,10 @@ class Ui_MainWindow(object):
         self.actionVSDroidcam.setText(QCoreApplication.translate("MainWindow", u"Droidcam", None))
         self.actionVSCameraByIndex.setText(QCoreApplication.translate("MainWindow", u"Camera by index", None))
         self.actionToggleHUD.setText(QCoreApplication.translate("MainWindow", u"Toggle", None))
+        self.actionScaleVideo.setText(QCoreApplication.translate("MainWindow", u"Scale", None))
         self.TextLabel.setText(QCoreApplication.translate("MainWindow", u"List of Students", None))
         self.menuMenu.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
-        self.menuSettings.setTitle(QCoreApplication.translate("MainWindow", u"Settings", None))
+        self.menuSettings.setTitle(QCoreApplication.translate("MainWindow", u"Video", None))
         self.menuVideo_sourse.setTitle(QCoreApplication.translate("MainWindow", u"Video sourse", None))
         self.menuHUD.setTitle(QCoreApplication.translate("MainWindow", u"HUD", None))
     # retranslateUi

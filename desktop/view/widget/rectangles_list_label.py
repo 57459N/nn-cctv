@@ -1,4 +1,5 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QRect
+from PySide6.QtGui import QPainter, QColor, QPen, QImage, QPixmap
 from PySide6.QtWidgets import QWidget, QLabel
 
 from desktop.myRect import MyRect
@@ -9,11 +10,41 @@ class RectanglesLabelList(QLabel):
         super().__init__(parent)
 
         # Selected zones
+        self.image = QImage()
         self.rectangles: list[MyRect] = []  # To store rectangle coordinates
         self.start_point = None  # Starting point for rectangle
         self.end_point = None  # End point for rectangle
         self.resizing_rect = None
         self.resize_direction = None  # Determines which corner to resize
+
+    def set_image(self, image: QImage):
+        self.image = image
+        self.paint_rectangles(self.image)
+
+    def show_image(self):
+        pixmap = QPixmap.fromImage(self.image)
+        self.setFixedSize(self.image.width(), self.image.height())
+        self.setPixmap(pixmap)
+
+    def paint_rectangles(self, q_img):
+        painter = QPainter(q_img)
+
+        for rect in self.rectangles:
+            rect.draw(painter)
+
+        # Show non-yet-created rectangle while holding mouse key
+        start, end = self.start_point, self.end_point
+        if start is not None and end is not None:
+            painter.setPen(QPen(QColor(255, 0, 0), 5))
+            painter.setBrush(QColor(255, 0, 0, 90))
+            painter.drawRect(QRect(start.x(), start.y(),
+                                   end.x() - start.x(),
+                                   end.y() - start.y()))
+
+        painter.end()
+
+    def scale(self, factor: float):
+        self.image = self.image.scaled(int(self.image.width() * factor), int(self.image.height() * factor))
 
     def get_rectangles(self):
         return self.rectangles
