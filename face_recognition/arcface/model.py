@@ -176,17 +176,30 @@ class IResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        with torch.amp.autocast('cuda', torch.float16 if self.fp16 else torch.float32):
-            x = self.conv1(x)
-            x = self.bn1(x)
-            x = self.prelu(x)
-            x = self.layer1(x)
-            x = self.layer2(x)
-            x = self.layer3(x)
-            x = self.layer4(x)
-            x = self.bn2(x)
-            x = torch.flatten(x, 1)
-            x = self.dropout(x)
+        if int(torch.__version__.split('.')[1]) >= 12:
+            with torch.amp.autocast('cuda', torch.float16 if self.fp16 else torch.float32):
+                x = self.conv1(x)
+                x = self.bn1(x)
+                x = self.prelu(x)
+                x = self.layer1(x)
+                x = self.layer2(x)
+                x = self.layer3(x)
+                x = self.layer4(x)
+                x = self.bn2(x)
+                x = torch.flatten(x, 1)
+                x = self.dropout(x)
+        else:
+            with torch.cuda.amp.autocast(torch.float16 if self.fp16 else torch.float32):
+                x = self.conv1(x)
+                x = self.bn1(x)
+                x = self.prelu(x)
+                x = self.layer1(x)
+                x = self.layer2(x)
+                x = self.layer3(x)
+                x = self.layer4(x)
+                x = self.bn2(x)
+                x = torch.flatten(x, 1)
+                x = self.dropout(x)
         x = self.fc(x.float() if self.fp16 else x)
         x = self.features(x)
         x = F.normalize(x, dim=1)
