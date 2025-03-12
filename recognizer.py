@@ -37,7 +37,6 @@ class Person:
         return self.name == other.name
 
 
-
 class Recognizer:
     def __init__(self, video_source: VideoSource = None,
                  tracking_config_file: str = "face_tracking/config/config_tracking.yaml",
@@ -78,6 +77,9 @@ class Recognizer:
 
     def set_video_source(self, video_source: VideoSource = None):
         self.cap = video_source
+
+    def get_video_source(self):
+        return self.cap
 
     def get_recognized(self):
         return self.recognized_persons

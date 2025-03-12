@@ -1,14 +1,15 @@
 import pickle
 
 from desktop.myRect import MyRect
+from desktop.video_source.base import VideoSource
 
 
 class Save:
-    def __init__(self, rectangles: list[MyRect], image_width: int, image_height: int, is_hud_visible: bool = False):
+    def __init__(self, src, rectangles: list[MyRect], is_hud_visible: bool = False, scale_factor: float = 1):
+        self.src = src
         self.rectangles = rectangles
-        self.image_width = image_width
-        self.image_height = image_height
         self.is_hud_visible = is_hud_visible
+        self.scale_factor = scale_factor
 
     def save(self, path):
         with open(path, "wb") as f:

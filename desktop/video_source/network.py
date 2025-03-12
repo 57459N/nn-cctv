@@ -3,9 +3,9 @@ import cv2
 from desktop.video_source.base import VideoSource
 
 
-class DroidcamVideoSource(VideoSource):
+class NetworkVideoSource(VideoSource):
     def __init__(self, url):
-        self._url = url
+        super().__init__(url)
         self._cap = cv2.VideoCapture(url)
 
     def get_frame(self):

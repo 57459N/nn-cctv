@@ -12,10 +12,10 @@ from desktop.myRect import MyRect
 from desktop.save import Save
 from desktop.video_source.camera_by_index import CameraByIndex
 from desktop.view.dialog.camera_index_dialog import CameraIndexDialog
-from desktop.view.dialog.droidcam_link_dialog import DroidcamLinkDialog
+from desktop.view.dialog.network_url_dialog import NetworkUrlDialog
 from desktop.view.ui.mainwindow import Ui_MainWindow
 
-from desktop.video_source.droidcam import DroidcamVideoSource
+from desktop.video_source.network import NetworkVideoSource
 from desktop.view.widget.rectangles_list_label import RectanglesLabelList
 from recognizer import Recognizer  # Ensure this imports correctly
 
@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
 
         self.text_label = self.ui.TextLabel
 
-        self.ui.actionVSDroidcam.triggered.connect(self.get_droidcam_link)
+        self.ui.actionVSDroidcam.triggered.connect(self.get_network_url)
         self.ui.actionVSCameraByIndex.triggered.connect(self.get_camera_by_index)
         self.ui.actionSaveSave.triggered.connect(self.save_save)
         self.ui.actionLoadSave.triggered.connect(self.load_save)
@@ -41,9 +41,9 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Face Recognition App")
         # vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
-        vs = DroidcamVideoSource("rtsp://admin:@192.168.0.69:554")
+        # vs = DroidcamVideoSource("rtsp://admin:@192.168.0.69:554")
         # vs = None
-        # vs = CameraByIndex(0)
+        vs = CameraByIndex(0)
 
         self.recognizer = Recognizer(video_source=vs)
 
@@ -60,19 +60,11 @@ class MainWindow(QMainWindow):
         self.marked_persons_widget_dict = MarkedPersonsWidget(self)
         self.ui.StudentsListLayout.addWidget(self.marked_persons_widget_dict)
 
-    def change_video_source(self, vs):
-        path = Path('temp.rcfg')
-        self.save_save(path)
-        self.frame = vs.get_frame()
-        self.recognizer.set_video_source(vs)
-        self.load_save(path)
-        path.unlink()
-
-    def get_droidcam_link(self):
-        dlg = DroidcamLinkDialog()
+    def get_network_url(self):
+        dlg = NetworkUrlDialog()
         if dlg.exec():
             text = dlg.lineEdit.text()
-            self.change_video_source(DroidcamVideoSource(text))
+            self.recognizer.set_video_source(NetworkVideoSource(text))
 
     def get_camera_by_index(self):
         while True:
@@ -83,7 +75,7 @@ class MainWindow(QMainWindow):
                     index = int(text)
                 except ValueError:
                     continue
-                self.change_video_source(CameraByIndex(index))
+                self.recognizer.set_video_source(CameraByIndex(index))
                 break
             else:
                 break
@@ -102,10 +94,10 @@ class MainWindow(QMainWindow):
             break
 
     def save_save(self, path: Path = None):
-        save = Save(rectangles=self.image_rectangles_label.get_rectangles(),
-                    image_height=self.frame.shape[0],
-                    image_width=self.frame.shape[1],
-                    is_hud_visible=self.recognizer.is_hud_visible())
+        save = Save(src=self.recognizer.get_video_source().src,
+                    rectangles=self.image_rectangles_label.get_rectangles(),
+                    is_hud_visible=self.recognizer.is_hud_visible(),
+                    scale_factor=self.scale_factor)
         if path:
             save.save(path)
         else:
@@ -124,21 +116,21 @@ class MainWindow(QMainWindow):
             dlg.setAcceptMode(QFileDialog.AcceptOpen)
             if dlg.exec():
                 save = Save.load(Path(dlg.selectedFiles()[0]))
+                dlg.close()
             else:
                 return
 
-        rectangles = []
-        x_ratio = self.frame.shape[1] / save.image_width
-        y_ratio = self.frame.shape[0] / save.image_height
-        for rect in save.rectangles:
-            r = copy.deepcopy(rect)
-            rectangles.append(MyRect(int(r.x() * x_ratio),
-                                     int(r.y() * y_ratio),
-                                     int(r.width() * x_ratio),
-                                     int(r.height()) * y_ratio))
-        self.image_rectangles_label.set_rectangles(rectangles)
+        if isinstance(save.src, int):
+            source_type = CameraByIndex
+        elif isinstance(save.src, str):
+            source_type = NetworkVideoSource
+        else:
+            assert False, 'Invalid source type'
 
+        self.recognizer.set_video_source(source_type(save.src))
+        self.image_rectangles_label.set_rectangles(save.rectangles)
         self.recognizer.set_hud_visible(save.is_hud_visible)
+        self.scale_factor = save.scale_factor
 
     # def scale_rectangles(self, x_ratio: float, y_ratio: float):
 

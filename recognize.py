@@ -253,6 +253,7 @@ def tracking(detector, args):
 
 def recognize():
     """Face recognition in a separate thread."""
+
     while True:
         raw_image = data_mapping["raw_image"]
         detection_landmarks = data_mapping["detection_landmarks"]
@@ -286,7 +287,6 @@ def recognize():
             time.sleep(0.05)
             pass
             # print("Waiting for a person...")
-
 
 
 def main():

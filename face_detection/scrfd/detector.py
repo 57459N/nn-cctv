@@ -272,7 +272,7 @@ class SCRFD:
                 values = area
             else:
                 values = (
-                    area - offset_dist_squared * 2.0
+                        area - offset_dist_squared * 2.0
                 )  # some extra weight on the centering
             bindex = np.argsort(values)[::-1]  # some extra weight on the centering
             bindex = bindex[0:max_num]
@@ -286,7 +286,7 @@ class SCRFD:
         return bboxes, landmarks
 
     def detect_tracking(
-        self, image, thresh=0.5, input_size=(128, 128), max_num=0, metric="default"
+            self, image, thresh=0.5, input_size=(128, 128), max_num=0, metric="default"
     ):
         assert input_size is not None or self.input_size is not None
         height, width = image.shape[:2]
@@ -309,6 +309,9 @@ class SCRFD:
         resized_img = cv2.resize(image, (new_width, new_height))
         det_img = np.zeros((input_size[1], input_size[0], 3), dtype=np.uint8)
         det_img[:new_height, :new_width, :] = resized_img
+
+        # cv2.imshow('det_img', det_img)
+        # cv2.waitKey(0)
 
         scores_list, bboxes_list, kpss_list = self.forward(det_img, thresh)
 
@@ -341,7 +344,7 @@ class SCRFD:
                 values = area
             else:
                 values = (
-                    area - offset_dist_squared * 2.0
+                        area - offset_dist_squared * 2.0
                 )  # some extra weight on the centering
             bindex = np.argsort(values)[::-1]  # some extra weight on the centering
             bindex = bindex[0:max_num]

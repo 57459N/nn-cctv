@@ -5,7 +5,7 @@ from desktop.video_source.base import VideoSource
 
 class CameraByIndex(VideoSource):
     def __init__(self, index):
-        self.index = index
+        super().__init__(index)
         self._cap = cv2.VideoCapture(index)
 
     def get_frame(self):
