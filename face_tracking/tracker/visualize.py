@@ -52,8 +52,6 @@ def plot_tracking(
     im = np.ascontiguousarray(np.copy(image))
     im_h, im_w = im.shape[:2]
 
-    top_view = np.zeros([im_w, im_w, 3], dtype=np.uint8) + 255
-
     # text_scale = max(1, image.shape[1] / 1600.)
     # text_thickness = 2
     # line_thickness = max(1, int(image.shape[1] / 500.))
