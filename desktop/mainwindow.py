@@ -60,6 +60,11 @@ class MainWindow(QMainWindow):
         self.marked_persons_widget_dict = MarkedPersonsWidget(self)
         self.ui.StudentsListLayout.addWidget(self.marked_persons_widget_dict)
 
+        try:
+            self.load_save('last')
+        except (FileNotFoundError, PermissionError) as e:
+            print('Error loading `last` config file', e, sep='\n')
+
     def get_network_url(self):
         dlg = NetworkUrlDialog()
         if dlg.exec():
@@ -93,7 +98,7 @@ class MainWindow(QMainWindow):
             self.scale_factor = new_scale
             break
 
-    def save_save(self, path: Path = None):
+    def save_save(self, path: str = None):
         save = Save(src=self.recognizer.get_video_source().src,
                     rectangles=self.image_rectangles_label.get_rectangles(),
                     is_hud_visible=self.recognizer.is_hud_visible(),
@@ -107,9 +112,9 @@ class MainWindow(QMainWindow):
             if dlg.exec():
                 save.save(Path(dlg.selectedFiles()[0]).with_suffix('.rcfg'))
 
-    def load_save(self, path: Path = None):
+    def load_save(self, path: str = None):
         if path:
-            save = Save.load(path)
+            save = Save.load(Path(path))
         else:
             dlg = QFileDialog()
             dlg.setFileMode(QFileDialog.AnyFile)
@@ -211,6 +216,7 @@ class MainWindow(QMainWindow):
             self.image_rectangles_label.pop_last_rect()
 
     def closeEvent(self, event):
+        self.save_save('last')
         if self.recognizer:
             self.recognizer.stop()  # Ensure recognizer is stopped
         event.accept()  # Accept the event to close the window
