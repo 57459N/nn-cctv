@@ -19,9 +19,9 @@ class RectanglesLabelList(QLabel):
 
     def set_image(self, image: QImage):
         self.image = image
-        self.paint_rectangles(self.image)
 
     def show_image(self):
+        self.paint_rectangles(self.image)
         pixmap = QPixmap.fromImage(self.image)
         self.setFixedSize(self.image.width(), self.image.height())
         self.setPixmap(pixmap)
