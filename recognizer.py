@@ -300,7 +300,6 @@ class Recognizer:
         frame_id = 0
 
         while self.is_running:
-            # todo uncomment
             if self.cap is not None:
                 img = self.cap.get_frame()
                 if img is None:

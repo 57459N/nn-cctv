@@ -226,7 +226,9 @@ def tracking(detector, args):
     tracker = BYTETracker(args=args, frame_rate=30)
     frame_id = 0
 
-    droidcam_url = 'https://192.168.0.106:4343/video'
+    # droidcam_url = 'https://192.168.0.106:4343/video'
+    droidcam_url = 'rtsp://admin:@192.168.0.69:554'
+    # droidcam_url = 0
     cap = cv2.VideoCapture(droidcam_url)
 
     while True:

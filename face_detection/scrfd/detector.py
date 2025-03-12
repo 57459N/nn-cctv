@@ -222,7 +222,7 @@ class SCRFD:
         return keep
 
     def detect(
-        self, image, thresh=0.5, input_size=(128, 128), max_num=0, metric="default"
+            self, image, thresh=0.5, input_size=(128, 128), max_num=0, metric="default"
     ):
         assert input_size is not None or self.input_size is not None
 

@@ -41,8 +41,9 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Face Recognition App")
         # vs = DroidcamVideoSource("https://192.168.0.106:4343/video")
+        vs = DroidcamVideoSource("rtsp://admin:@192.168.0.69:554")
         # vs = None
-        vs = CameraByIndex(0)
+        # vs = CameraByIndex(0)
 
         self.recognizer = Recognizer(video_source=vs)
 
@@ -58,8 +59,6 @@ class MainWindow(QMainWindow):
 
         self.marked_persons_widget_dict = MarkedPersonsWidget(self)
         self.ui.StudentsListLayout.addWidget(self.marked_persons_widget_dict)
-
-
 
     def change_video_source(self, vs):
         path = Path('temp.rcfg')

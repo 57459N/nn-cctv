@@ -16,18 +16,21 @@ class RectanglesLabelList(QLabel):
         self.end_point = None  # End point for rectangle
         self.resizing_rect = None
         self.resize_direction = None  # Determines which corner to resize
+        self.scale_factor = 0
 
     def set_image(self, image: QImage):
         self.image = image
+        self.paint_rectangles(self.image)
 
     def show_image(self):
-        self.paint_rectangles(self.image)
         pixmap = QPixmap.fromImage(self.image)
         self.setFixedSize(self.image.width(), self.image.height())
         self.setPixmap(pixmap)
 
     def paint_rectangles(self, q_img):
         painter = QPainter(q_img)
+        painter.setPen(QPen(QColor(255, 0, 0), 5))
+        painter.setBrush(QColor(255, 0, 0, 90))
 
         for rect in self.rectangles:
             rect.draw(painter)
@@ -35,8 +38,6 @@ class RectanglesLabelList(QLabel):
         # Show non-yet-created rectangle while holding mouse key
         start, end = self.start_point, self.end_point
         if start is not None and end is not None:
-            painter.setPen(QPen(QColor(255, 0, 0), 5))
-            painter.setBrush(QColor(255, 0, 0, 90))
             painter.drawRect(QRect(start.x(), start.y(),
                                    end.x() - start.x(),
                                    end.y() - start.y()))
@@ -44,6 +45,7 @@ class RectanglesLabelList(QLabel):
         painter.end()
 
     def scale(self, factor: float):
+        self.scale_factor = factor
         self.image = self.image.scaled(int(self.image.width() * factor), int(self.image.height() * factor))
 
     def get_rectangles(self):
@@ -64,11 +66,17 @@ class RectanglesLabelList(QLabel):
         if event.key() == Qt.Key.Key_Z and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
             self.pop_last_rect()
 
+    def get_mouse_position(self, event):
+        mouse_pos = self.mapFromGlobal(event.globalPos())
+        mouse_pos.setX(mouse_pos.x() / self.scale_factor)
+        mouse_pos.setY(mouse_pos.y() / self.scale_factor)
+        return mouse_pos
+
     def mousePressEvent(self, event):
         """Capture the starting point of the rectangle."""
 
         if event.button() == Qt.MouseButton.LeftButton and self.underMouse():
-            mouse_pos = self.mapFromGlobal(event.globalPos())
+            mouse_pos = self.get_mouse_position(event)
             for i, rect in enumerate(self.rectangles):
                 corner, direction = self.is_pos_near_corner(mouse_pos, rect)
                 if corner:
@@ -80,7 +88,7 @@ class RectanglesLabelList(QLabel):
 
     def mouseMoveEvent(self, event):
         """Capture the end point of the rectangle while dragging or resizing."""
-        mouse_pos = self.mapFromGlobal(event.globalPos())
+        mouse_pos = self.get_mouse_position(event)
         if self.resizing_rect is not None:
             rect = self.rectangles[self.resizing_rect]
             if 'top' in self.resize_direction:
