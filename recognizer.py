@@ -73,7 +73,11 @@ class Recognizer:
         }
 
         self.tracking_image = None
+        self.detection_zones = None
         self.recognized_persons: list[Person] = []
+
+    def set_detection_zones(self, zones):
+        self.detection_zones = zones
 
     def set_video_source(self, video_source: VideoSource = None):
         self.cap = video_source
@@ -114,7 +118,7 @@ class Recognizer:
             numpy.ndarray: The processed tracking image.
         """
         # Face detection and tracking
-        outputs, img_info, bboxes, landmarks = self.detector.detect_tracking(image=frame)
+        outputs, img_info, bboxes, landmarks = self.detector.detect_tracking(image=frame, tlwhs=self.detection_zones)
 
         tracking_tlwhs = []
         tracking_ids = []
@@ -124,7 +128,7 @@ class Recognizer:
         tracking_image = img_info["raw_img"]
         if outputs is not None:
             online_targets = self.tracker.update(
-                outputs, [img_info["height"], img_info["width"]], (128, 128)
+                outputs, [img_info["height"], img_info["width"]], (img_info["height"], img_info["width"])
             )
 
             for i in range(len(online_targets)):
