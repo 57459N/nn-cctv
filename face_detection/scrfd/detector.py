@@ -285,8 +285,27 @@ class SCRFD:
 
         return bboxes, landmarks
 
+    def get_resized_subimage(selfm, image, tlwh, input_size=(128, 128)):
+        x, y, w, h = tlwh
+
+        im_ratio = float(h) / w
+        model_ratio = float(input_size[1]) / input_size[0]
+        if im_ratio > model_ratio:
+            new_height = input_size[1]
+            new_width = int(new_height / im_ratio)
+        else:
+            new_width = input_size[0]
+            new_height = int(new_width * im_ratio)
+
+        resized_img = cv2.resize(image[y:y + h, x:x + w, :], (new_width, new_height))
+        det_img = np.zeros((input_size[1], input_size[0], 3), dtype=np.uint8)
+        det_img[:new_height, :new_width, :] = resized_img
+        det_scale = float(new_height) / image.shape[0]
+
+        return det_img, det_scale
+
     def detect_tracking(
-            self, image, thresh=0.5, input_size=(128, 128), max_num=0, metric="default"
+            self, image, tlwhs=None, thresh=0.5, input_size=(128, 128), max_num=0, metric="default"
     ):
         assert input_size is not None or self.input_size is not None
         height, width = image.shape[:2]
@@ -295,30 +314,38 @@ class SCRFD:
         img_info["width"] = width
         img_info["raw_img"] = image
 
+        if not tlwhs:
+            tlwhs = [[0, 0, width, height]]
+
         input_size = self.input_size if input_size is None else input_size
 
-        im_ratio = float(image.shape[0]) / image.shape[1]
-        model_ratio = float(input_size[1]) / input_size[0]
-        if im_ratio > model_ratio:
-            new_height = input_size[1]
-            new_width = int(new_height / im_ratio)
-        else:
-            new_width = input_size[0]
-            new_height = int(new_width * im_ratio)
-        det_scale = float(new_height) / image.shape[0]
-        resized_img = cv2.resize(image, (new_width, new_height))
-        det_img = np.zeros((input_size[1], input_size[0], 3), dtype=np.uint8)
-        det_img[:new_height, :new_width, :] = resized_img
+        scores_list, bboxes_list, kpss_list = [], [], []
 
-        # cv2.imshow('det_img', det_img)
-        # cv2.waitKey(0)
+        for tlwh in tlwhs:
+            x, y, w, h = tlwh
+            det_img, det_scale = self.get_resized_subimage(image, tlwh, input_size)
+            s, b, k = self.forward(det_img, thresh)
 
-        scores_list, bboxes_list, kpss_list = self.forward(det_img, thresh)
+            offset = np.array([x, y, x, y])
+            for i in range(len(b)):
+                b[i] /= det_scale
+                if b[i].shape[0] > 0:
+                    b[i] += offset
+
+            for i in range(len(k)):
+                k[i] /= det_scale
+                if k[i].shape[0] > 0:
+                    k[i] += offset[:2]
+
+            scores_list.extend(s)
+            bboxes_list.extend(b)
+            kpss_list.extend(k)
 
         scores = np.vstack(scores_list)
         scores_ravel = scores.ravel()
         order = scores_ravel.argsort()[::-1]
         bboxes = np.vstack(bboxes_list)
+
         if self.use_kps:
             kpss = np.vstack(kpss_list)
         pre_det = np.hstack((bboxes, scores)).astype(np.float32, copy=False)
@@ -330,6 +357,8 @@ class SCRFD:
             kpss = kpss[keep, :, :]
         else:
             kpss = None
+
+        # TODO: IDK what this if does so modification of multizone detection is not taking it into an account
         if max_num > 0 and det.shape[0] > max_num:
             area = (det[:, 2] - det[:, 0]) * (det[:, 3] - det[:, 1])
             img_center = image.shape[0] // 2, image.shape[1] // 2
@@ -351,8 +380,8 @@ class SCRFD:
             det = det[bindex, :]
             if kpss is not None:
                 kpss = kpss[bindex, :]
-
-        bboxes = np.int32(det / det_scale)
-        landmarks = np.int32(kpss / det_scale)
+        #
+        bboxes = np.int32(det)
+        landmarks = np.int32(kpss)
 
         return torch.tensor(det), img_info, bboxes, landmarks
