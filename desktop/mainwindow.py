@@ -24,6 +24,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.last_save_path = Path('last.rcfg')
+
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -61,7 +63,7 @@ class MainWindow(QMainWindow):
         self.ui.StudentsListLayout.addWidget(self.marked_persons_widget_dict)
 
         try:
-            self.load_save('last')
+            self.load_save(self.last_save_path)
         except (FileNotFoundError, PermissionError) as e:
             print('Error loading `last` config file', e, sep='\n')
 
@@ -144,7 +146,7 @@ class MainWindow(QMainWindow):
 
     def update_frame(self):
         """Update the displayed frame."""
-        self.frame = self.recognizer.get_iamge().copy()
+        self.frame = self.recognizer.get_image().copy()
         if self.frame is not None:
             height, width, channel = self.frame.shape
             q_img = QImage(self.frame.data, width, height, 3 * width, QImage.Format.Format_BGR888)
@@ -216,7 +218,7 @@ class MainWindow(QMainWindow):
             self.image_rectangles_label.pop_last_rect()
 
     def closeEvent(self, event):
-        self.save_save('last')
+        self.save_save(self.last_save_path)
         if self.recognizer:
             self.recognizer.stop()  # Ensure recognizer is stopped
         event.accept()  # Accept the event to close the window
