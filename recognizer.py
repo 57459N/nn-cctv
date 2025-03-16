@@ -87,7 +87,7 @@ class Recognizer:
     def is_hud_visible(self):
         return self.hud_visible
 
-    def get_iamge(self):
+    def get_image(self):
         if self.tracking_image is None:
             return np.ones((900, 1600, 3), np.uint8) * 255
         return self.tracking_image
