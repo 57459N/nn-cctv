@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, QRect
+from PySide6.QtCore import Qt, QRect, Signal
 from PySide6.QtGui import QPainter, QColor, QPen, QImage, QPixmap
 from PySide6.QtWidgets import QWidget, QLabel
 
@@ -6,6 +6,8 @@ from desktop.myRect import MyRect
 
 
 class RectanglesLabelList(QLabel):
+    rectangles_changed = Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -17,6 +19,7 @@ class RectanglesLabelList(QLabel):
         self.resizing_rect = None
         self.resize_direction = None  # Determines which corner to resize
         self.scale_factor = 0
+
 
     def set_image(self, image: QImage):
         self.image = image
@@ -51,6 +54,16 @@ class RectanglesLabelList(QLabel):
     def get_rectangles(self):
         return self.rectangles
 
+    def get_tlwhs(self):
+        res = []
+        for r in self.rectangles:
+            x = r.x() if r.width() >= 0 else r.x() + r.width()
+            y = r.y() if r.height() >= 0 else r.y() + r.height()
+            w = abs(r.width())
+            h = abs(r.height())
+            res.append((x, y, w, h))
+        return res
+
     def set_rectangles(self, rectangles: list[MyRect]):
         self.rectangles = rectangles
 
@@ -60,6 +73,7 @@ class RectanglesLabelList(QLabel):
     def pop_last_rect(self):
         if self.rectangles:
             self.rectangles.pop()
+            self.rectangles_changed.emit()
 
     def keyPressEvent(self, event):
         """Handle key press events."""
@@ -111,6 +125,7 @@ class RectanglesLabelList(QLabel):
                           self.end_point.x() - self.start_point.x(),
                           self.end_point.y() - self.start_point.y())
             self.rectangles.append(rect)  # Add the rectangle to the list
+            self.rectangles_changed.emit()
             self.start_point = None
             self.end_point = None
 

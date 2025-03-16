@@ -48,6 +48,7 @@ class MainWindow(QMainWindow):
         vs = CameraByIndex(0)
 
         self.recognizer = Recognizer(video_source=vs)
+        self.image_rectangles_label.rectangles_changed.connect(self.recognizer.reset_mappings)
 
         # Timer to update frame
         self.timer = QTimer(self)
@@ -146,6 +147,7 @@ class MainWindow(QMainWindow):
 
     def update_frame(self):
         """Update the displayed frame."""
+        self.recognizer.set_detection_zones(self.image_rectangles_label.get_tlwhs())
         self.frame = self.recognizer.get_image().copy()
         if self.frame is not None:
             height, width, channel = self.frame.shape

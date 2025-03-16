@@ -1,4 +1,7 @@
+import cProfile
 import dataclasses
+import pstats
+import stat
 import threading
 import time
 
@@ -76,8 +79,18 @@ class Recognizer:
         self.detection_zones = None
         self.recognized_persons: list[Person] = []
 
-    def set_detection_zones(self, zones):
-        self.detection_zones = zones
+    def reset_mappings(self):
+        self.id_face_mapping = {}
+        self.data_mapping = {
+            "raw_image": [],
+            "tracking_ids": [],
+            "detection_bboxes": [],
+            "detection_landmarks": [],
+            "tracking_bboxes": [],
+        }
+
+    def set_detection_zones(self, tlwhs):
+        self.detection_zones = tlwhs
 
     def set_video_source(self, video_source: VideoSource = None):
         self.cap = video_source
@@ -156,15 +169,15 @@ class Recognizer:
 
             self.recognized_persons = recs
 
-            if self.hud_visible:
-                tracking_image = plot_tracking(
-                    tracking_image,
-                    tracking_tlwhs,
-                    tracking_ids,
-                    names=self.id_face_mapping,
-                    frame_id=frame_id + 1,
-                    fps=fps,
-                )
+            # if self.hud_visible:
+            #     tracking_image = plot_tracking(
+            #         tracking_image,
+            #         tracking_tlwhs,
+            #         tracking_ids,
+            #         names=self.id_face_mapping,
+            #         frame_id=frame_id + 1,
+            #         fps=fps,
+            #     )
 
         self.data_mapping["raw_image"] = img_info["raw_img"]
         self.data_mapping["detection_bboxes"] = bboxes
@@ -305,6 +318,8 @@ class Recognizer:
         # Initialize a tracker and a timer
         frame_id = 0
 
+        prof = cProfile.Profile()
+        prof.enable()
         while self.is_running:
             if self.cap is not None:
                 img = self.cap.get_frame()
@@ -321,6 +336,9 @@ class Recognizer:
                 fps = 1e9 * frame_count / (time.time_ns() - start_time)
                 frame_count = 0
                 start_time = time.time_ns()
+        prof.disable()
+        stats = pstats.Stats(prof)
+        stats.dump_stats('tracking_zones.prof')
 
     def start(self):
         self.is_running = True
