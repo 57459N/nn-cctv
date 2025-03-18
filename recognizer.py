@@ -1,4 +1,3 @@
-import cProfile
 import dataclasses
 import pstats
 import stat
@@ -229,6 +228,7 @@ class Recognizer:
             tracking_ids = self.data_mapping["tracking_ids"]
             tracking_bboxes = self.data_mapping["tracking_bboxes"]
 
+
             for i in range(len(tracking_bboxes)):
                 for j in range(len(detection_bboxes)):
                     mapping_score = self.mapping_bbox(box1=tracking_bboxes[i], box2=detection_bboxes[j])
@@ -253,6 +253,7 @@ class Recognizer:
 
             if tracking_bboxes == []:
                 time.sleep(0.05)
+
 
     def recognition(self, face_image):
         """
@@ -318,8 +319,6 @@ class Recognizer:
         # Initialize a tracker and a timer
         frame_id = 0
 
-        prof = cProfile.Profile()
-        prof.enable()
         while self.is_running:
             if self.cap is not None:
                 img = self.cap.get_frame()
@@ -336,9 +335,6 @@ class Recognizer:
                 fps = 1e9 * frame_count / (time.time_ns() - start_time)
                 frame_count = 0
                 start_time = time.time_ns()
-        prof.disable()
-        stats = pstats.Stats(prof)
-        stats.dump_stats('tracking_zones.prof')
 
     def start(self):
         self.is_running = True

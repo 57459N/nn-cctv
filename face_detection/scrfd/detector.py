@@ -300,7 +300,7 @@ class SCRFD:
         resized_img = cv2.resize(image[y:y + h, x:x + w, :], (new_width, new_height))
         det_img = np.zeros((input_size[1], input_size[0], 3), dtype=np.uint8)
         det_img[:new_height, :new_width, :] = resized_img
-        det_scale = float(new_height) / image.shape[0]
+        det_scale = float(new_height) / h
 
         return det_img, det_scale
 

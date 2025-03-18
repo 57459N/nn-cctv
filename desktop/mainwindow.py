@@ -194,7 +194,9 @@ class MainWindow(QMainWindow):
             painter.setPen(QPen(QColor(255, 0, 0), 5))
             painter.setBrush(QColor(255, 0, 0, 0))
 
-        for p in self.recognizer.get_recognized():
+        recogn = self.recognizer.get_recognized()
+        pass
+        for p in recogn:
             green()
 
             if p.name in self.marked_persons_widget_dict:
